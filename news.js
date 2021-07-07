@@ -71,7 +71,7 @@ async function fetchArticles() {
   // Used to hold response from API.
   let articles = [];
 
-  // Guard against error
+  // Make sure we cover/protect/code-for/handle/account for all successful, error-ed, and required steps.
   try {
     const resp = await fetch(url);
     const json = await resp.json();
@@ -81,17 +81,18 @@ async function fetchArticles() {
 
     articles = json.articles;
 
-    // BAD: Did not put pizza in pizza box.
+    // BAD: Did not put pizza in pizza box correctly. Placed pizza on top of closed box.
     localStorage.setItem("willNotWork", articles);
 
-    // GOOD: Did put pizza in pizza box.
+    // GOOD: Did put pizza in pizza box correctly. Placed pizza INSIDE of open box, then closed the box.
     // Save data for rainy day.
     localStorage.setItem("willWork", JSON.stringify(articles));
   } catch (error) {
     // Report the error to the person in charge, you!
     console.log({ error, foo: "bar", spam: "ham" });
 
-    // Grab out data we saved previously
+    // GOOD: Open box of pizza before eating.
+    // Grab out data we saved in previously successfully fetch() requests.
     articles = JSON.parse(localStorage.getItem("willWork"));
   } finally {
     // render Foo to the screen.
