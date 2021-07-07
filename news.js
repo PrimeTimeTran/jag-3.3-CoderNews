@@ -1,18 +1,16 @@
-function rendersArticles(articles) {
+function renderArticles(articles) {
   // How many articles do we have?
-  console.log({ beforeFilterLengthOfArticles: articles.length });
 
   // Lets remove the bad ones, the elements that don't meet a criteria.
   const goodArticles = articles.filter((a) => a.author);
 
   // How many do we have now?
-  console.log({ afterFilterLengthOfArticles: goodArticles.length });
 
   // Use the foo you got from the api to produce a spam.
   const spam = goodArticles.map(
-    (a) => `
+    (a, foo, spam) => `
     <section>
-      <h1>${a.title}</h1>
+      <h1>${foo + 1}. ${a.title}</h1>
       <div>
         ${a.author}
       </div>
@@ -27,9 +25,13 @@ function rendersArticles(articles) {
   document.getElementById("articles").innerHTML = spam.join("");
 }
 
-function produceUrl() {
+let pageNumber = 0
+
+function produceDefaultUrl() {
+  pageNumber++
+
   let url =
-    "https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe";
+    `https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe&page=${pageNumber}`;
 
   // Look at all url query parameters and add them to the url above to respect language/country/category/page/etc.
   const urlParams = window.location.search.split("?")[1];
@@ -43,7 +45,6 @@ function produceUrl() {
     url += `&${key}=${value}`;
   });
 
-  console.log({ finalUrl: url });
 
   return url
 }
@@ -69,12 +70,23 @@ function produceUrl() {
 //     })
 // }
 
+
+// We're gonna need two arrays in a moment...
+// Lemmet know when u know when =)
+
+let articles = [];
+let allArticles = [];
+
+function spam(q) {
+  return `https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe&page=${pageNumber}&q=${q}`;
+}
+
+
 // 2. Async/Await
-async function fetchArticles() {
-  let url = produceUrl();
+async function fetchArticles(q) {
+  let url = q ? spam(q) : produceDefaultUrl();
 
   // Used to hold response from API.
-  let articles = [];
 
   // Make sure we cover/protect/code-for/handle/account for all successful, error-ed, and required steps.
   try {
@@ -82,27 +94,32 @@ async function fetchArticles() {
     const json = await resp.json();
 
     // Log one to see it's shape always in our console.
-    console.log({ article: json.articles[0], json });
 
     articles = json.articles;
 
-    // BAD: Did not put pizza in pizza box correctly. Placed pizza on top of closed box.
-    localStorage.setItem("willNotWork", articles);
+    allArticles = allArticles.concat(articles);
 
-    // GOOD: Did put pizza in pizza box correctly. Placed pizza INSIDE of open box, then closed the box.
-    // Save data for rainy day.
-    localStorage.setItem("willWork", JSON.stringify(articles));
   } catch (error) {
     // Report the error to the person in charge, you!
-    console.log({ error, foo: "bar", spam: "ham" });
-
+    console.log({error});
     // GOOD: Open box of pizza before eating.
     // Grab out data we saved in previously successfully fetch() requests.
     articles = JSON.parse(localStorage.getItem("willWork"));
   } finally {
     // render Foo to the screen.
-    rendersArticles(articles);
+    console.log({ allArticles });
+    renderArticles(allArticles);
   }
 }
 
 fetchArticles();
+
+
+function fooBar() {
+  fetchArticles()
+}
+
+function searchNews(e) {
+  const q = document.getElementById("searchTerm").value
+  fetchArticles(q);
+}
