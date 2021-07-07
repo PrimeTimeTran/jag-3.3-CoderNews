@@ -32,15 +32,16 @@ function produceUrl() {
     "https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe";
 
   // Look at all url query parameters and add them to the url above to respect language/country/category/page/etc.
-  const foo = window.location.search
-  .split("?")[1]
-  .split("&")
-  .map((p) => {
-      // This is "massaging our data" into a form we can work with
-      const [key, value] = p.split('=')
-      url += `&${key}=${value}` 
-    })
+  const urlParams = window.location.search.split("?")[1];
 
+  // Guard against no url params and default to english.
+  if (!urlParams) return url + "&language=en";
+
+  urlParams.split("&").map((p) => {
+    // "Massage data" into workable form.
+    const [key, value] = p.split("=");
+    url += `&${key}=${value}`;
+  });
 
   console.log({ finalUrl: url });
 
