@@ -28,44 +28,48 @@ function rendersArticles(articles) {
 }
 
 function produceUrl() {
-  const foo = window.location.search
-    .split("?")[1]
-    .split("&")
-    .map((qP) => {
-      const [key, value] = qP.split("=");
-      return {
-        key: key,
-        value: value,
-      };
-    });
-
   let url =
     "https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe";
-  console.log({ foo });
-  return foo.map((p) => url + `&${p.key}=${p.value}`).join("");
+
+  // Look at all url query parameters and add them to the url above to respect language/country/category/page/etc.
+  const foo = window.location.search
+  .split("?")[1]
+  .split("&")
+  .map((p) => {
+      // This is "massaging our data" into a form we can work with
+      const [key, value] = p.split('=')
+      url += `&${key}=${value}` 
+    })
+
+
+  console.log({ finalUrl: url });
+
+  return url
 }
 
+// // NOTES : Signature of fetch() is that it takes a url string 1st & config object 2nd.
+// // fetch(url, config)
+// // BAD: Promise chain
+// // 1. Callback hell
+// // 2. Does not look "synchronous"
+// function fetchArticles() {
+//   fetch(
+//     "https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe&language=en&category=health",
+//   )
+//     .then((r) => {
+//       return r.json();
+//     })
+//     .then((json) => {
+//       console.log({ foo: json });
+//       rendersArticles(json.articles);
+//     })
+//     .catch((e) => {
+//       console.log({e, foo: 'bar'});
+//     })
+// }
+
+// 2. Async/Await
 async function fetchArticles() {
-  // NOTES : Signature of fetch() is that it takes a url string 1st & config object 2nd.
-  // fetch(url, config)
-
-  // BAD: Promise chain
-  // 1. Callback hell
-  // 2. Does not look "synchronous"
-  // fetch(
-  //   "https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe&language=en&category=health",
-  // )
-  //   .then((r) => {
-  //     return r.json();
-  //   })
-  //   .then((json) => {
-  //     console.log({ foo: json });
-  //   })
-  //   .catch((e) => {
-  //     console.log({e, foo: 'bar'});
-  //   })
-
-  // 2. Async/Await
   let url = produceUrl();
 
   // Used to hold response from API.
