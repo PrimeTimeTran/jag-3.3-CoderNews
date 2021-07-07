@@ -1,8 +1,15 @@
 function rendersArticles(articles) {
-  console.log({ articlesLength: articles.length});
-  const goodArticles = articles.filter(a => a.author)
-  console.log({ goodArticles, goodArticlesLength: goodArticles.length });
-  const foo = goodArticles.map(
+  // How many articles do we have?
+  console.log({ beforeFilterLengthOfArticles: articles.length });
+
+  // Lets remove the bad ones, the elements that don't meet a criteria.
+  const goodArticles = articles.filter((a) => a.author);
+
+  // How many do we have now?
+  console.log({ afterFilterLengthOfArticles: goodArticles.length });
+
+  // Use the foo you got from the api to produce a spam.
+  const spam = goodArticles.map(
     (a) => `
     <section>
       <h1>${a.title}</h1>
@@ -16,9 +23,9 @@ function rendersArticles(articles) {
   `,
   );
 
-  document.getElementById("articles").innerHTML = foo.join('')
+  // Inject spam into the U.I.
+  document.getElementById("articles").innerHTML = spam.join("");
 }
-
 
 function produceUrl() {
   const foo = window.location.search
@@ -32,21 +39,19 @@ function produceUrl() {
       };
     });
 
-    let url =
-      "https://newsapi.org/v2/top-headlines?apiKey=dsadsv";
-    console.log({ foo });
-    return foo.map((p) => url + `&${p.key}=${p.value}`).join('');
+  let url =
+    "https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe";
+  console.log({ foo });
+  return foo.map((p) => url + `&${p.key}=${p.value}`).join("");
 }
 
-
-
 async function fetchArticles() {
-  // NOTES : Singature of fetch 1st argument url, 2nd is configuration obj
+  // NOTES : Signature of is it takes a url & config.
+  // fetch(url, config)
 
-  // fetch(url, {})
-
-
-  // 1. Promise Chain.
+  // BAD: Promise chain
+  // 1. Callback hell
+  // 2. Does not look "synchronous"
   // fetch(
   //   "https://newsapi.org/v2/top-headlines?apiKey=6eec2f7fe6cd4c40a3fef8f33f5778fe&language=en&category=health",
   // )
@@ -60,30 +65,36 @@ async function fetchArticles() {
   //     console.log({e, foo: 'bar'});
   //   })
 
-
-  // 2. Async/Await 
-
+  // 2. Async/Await
   let url = produceUrl();
 
-  console.log({url});
-
-
-
-  // Sometimes internet bad
-  let articles = []
+  // Guard against error
+  let articles = [];
   try {
     const resp = await fetch(url);
     const json = await resp.json();
+
+    // Log one to see it's shape always in our console.
     console.log({ article: json.articles[0], json });
-    articles = json.articles
+
+    articles = json.articles;
+
+    // BAD: Did not put pizza in pizza box.
     localStorage.setItem("willNotWork", articles);
+
+    // GOOD: Did put pizza in pizza box.
+    // Save data for rainy day.
     localStorage.setItem("willWork", JSON.stringify(articles));
   } catch (error) {
-    console.log({error, foo: 'bar', spam: 'ham'});
+    // Report the error to the person in charge, you!
+    console.log({ error, foo: "bar", spam: "ham" });
+
+    // Grab out data we saved previously
     articles = JSON.parse(localStorage.getItem("willWork"));
   } finally {
-    rendersArticles(articles)
+    // render Foo to the screen.
+    rendersArticles(articles);
   }
 }
 
-fetchArticles()
+fetchArticles();
