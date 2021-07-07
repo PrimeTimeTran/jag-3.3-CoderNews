@@ -46,7 +46,7 @@ function produceUrl() {
 }
 
 async function fetchArticles() {
-  // NOTES : Signature of is it takes a url & config.
+  // NOTES : Signature of fetch() is that it takes a url string 1st & config object 2nd.
   // fetch(url, config)
 
   // BAD: Promise chain
@@ -68,8 +68,10 @@ async function fetchArticles() {
   // 2. Async/Await
   let url = produceUrl();
 
-  // Guard against error
+  // Used to hold response from API.
   let articles = [];
+
+  // Guard against error
   try {
     const resp = await fetch(url);
     const json = await resp.json();
